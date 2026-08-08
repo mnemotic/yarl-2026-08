@@ -1,0 +1,23 @@
+[project]
+name = "yarl"
+version = "0.1.0"
+description = "Yet Another Roguelike built for RoguelikeDev Does The Complete Roguelike Tutorial, August 2026."
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [{ name = "Martin Green", email = "mnemotic@pm.me" }]
+dependencies = [
+  "numpy>=2.5.1",
+  "tcod>=21.2.1",
+]
+
+[project.scripts]
+yarl = "yarl:main"
+
+[dependency-groups]
+dev = [
+  "ruff>=0.16.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"
