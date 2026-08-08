@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: YARL",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "yarl",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false,
+      "preLaunchTask": "uv sync",
+      "args": []
+    }
+  ]
+}

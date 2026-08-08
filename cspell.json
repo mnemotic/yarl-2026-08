@@ -8,7 +8,9 @@
     "pycache",
     "tcod",
     "venv",
-    "yarl"
+    "vsync",
+    "yarl",
+    "zilk"
   ],
   "ignoreWords": [],
   "import": []
