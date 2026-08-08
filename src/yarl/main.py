@@ -3,6 +3,11 @@ from pathlib import Path
 
 import tcod
 
+from yarl.engine import Engine
+from yarl.entity import Entity
+from yarl.game_map import GameMap
+from yarl.input_handlers import EventHandler
+
 KEY_COMMANDS = {
     tcod.event.KeySym.UP: (0, -1),
     tcod.event.KeySym.DOWN: (0, +1),
@@ -15,8 +20,8 @@ def main() -> None:
     screen_width = 80
     screen_height = 50
 
-    player_x = screen_width // 2
-    player_y = screen_height // 2
+    map_width = 80
+    map_height = 45
 
     with as_file(files("yarl.assets").joinpath("zilk_16x16.png")) as f:
         tileset_filepath = f
@@ -27,6 +32,16 @@ def main() -> None:
             tcod.tileset.CHARMAP_CP437,
         )
 
+    player = Entity(screen_width // 2, screen_height // 2, ord("@"), (255, 255, 255))
+    rat = Entity(screen_width // 2 - 5, screen_height // 2, ord("r"), (255, 255, 0))
+    entities = {player, rat}
+
+    game_map = GameMap(map_width, map_height)
+    event_handler = EventHandler()
+    engine = Engine(
+        entities=entities, event_handler=event_handler, game_map=game_map, player=player
+    )
+
     with tcod.context.new(
         columns=screen_width,
         rows=screen_height,
@@ -34,15 +49,8 @@ def main() -> None:
         title="YARL",
         vsync=True,
     ) as context:
-        root_console = context.new_console()
+        root_console = context.new_console(order="F")
         while True:
-            root_console.clear(ord("."), fg=(255 // 2, 255 // 2, 255 // 2))
-            root_console.print(x=player_x, y=player_y, text="@", fg=(255, 255, 255))
-            context.present(root_console)
-            for event in tcod.event.wait():
-                match event:
-                    case tcod.event.KeyDown(sym=sym) if sym in KEY_COMMANDS:
-                        player_x += KEY_COMMANDS[sym][0]
-                        player_y += KEY_COMMANDS[sym][1]
-                    case tcod.event.Quit():
-                        raise SystemExit()
+            engine.render(console=root_console, context=context)
+            events = tcod.event.wait()
+            engine.handle_events(events)
