@@ -5,8 +5,8 @@ import tcod
 
 from yarl.engine import Engine
 from yarl.entity import Entity
-from yarl.game_map import GameMap
 from yarl.input_handlers import EventHandler
+from yarl.procgen import generate_dungeon
 
 KEY_COMMANDS = {
     tcod.event.KeySym.UP: (0, -1),
@@ -23,6 +23,10 @@ def main() -> None:
     map_width = 80
     map_height = 45
 
+    room_max_size = 10
+    room_min_size = 6
+    max_rooms = 30
+
     with as_file(files("yarl.assets").joinpath("zilk_16x16.png")) as f:
         tileset_filepath = f
         tileset = tcod.tileset.load_tilesheet(
@@ -36,7 +40,15 @@ def main() -> None:
     rat = Entity(screen_width // 2 - 5, screen_height // 2, ord("r"), (255, 255, 0))
     entities = {player, rat}
 
-    game_map = GameMap(map_width, map_height)
+    game_map = generate_dungeon(
+        map_height=map_height,
+        map_width=map_width,
+        max_rooms=max_rooms,
+        room_min_size=room_min_size,
+        room_max_size=room_max_size,
+        player=player,
+    )
+
     event_handler = EventHandler()
     engine = Engine(
         entities=entities, event_handler=event_handler, game_map=game_map, player=player

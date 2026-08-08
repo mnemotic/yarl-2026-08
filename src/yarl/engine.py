@@ -12,11 +12,6 @@ from yarl.state import State
 
 
 class Engine:
-    entities: AbstractSet[Entity]
-    event_handler: State
-    game_map: GameMap
-    player: Entity
-
     def __init__(
         self,
         entities: AbstractSet[Entity],
@@ -24,10 +19,10 @@ class Engine:
         game_map: GameMap,
         player: Entity,
     ):
-        self.entities = entities
-        self.event_handler = event_handler
-        self.game_map = game_map
-        self.player = player
+        self.entities: AbstractSet[Entity] = entities
+        self.event_handler: State = event_handler
+        self.game_map: GameMap = game_map
+        self.player: Entity = player
 
     def handle_events(self, events: Iterable[Any]) -> None:
         for event in events:

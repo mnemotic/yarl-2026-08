@@ -1,22 +1,18 @@
 from typing import Any
 
 import numpy as np
-import numpy.typing as npt
 from tcod.console import Console
 
 import yarl.tile_types as tiles
 
 
 class GameMap:
-    width: int
-    height: int
-    tiles: npt.NDArray[Any]
-
     def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
-        self.tiles = np.full((width, height), fill_value=tiles.floor, order="F")
-        self.tiles[30:33, 22] = tiles.wall
+        self.width: int = width
+        self.height: int = height
+        self.tiles: np.ndarray[tuple[int, int], Any] = np.full(
+            (width, height), fill_value=tiles.wall, order="F"
+        )
 
     def in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height

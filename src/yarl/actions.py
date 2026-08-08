@@ -13,14 +13,11 @@ class QuitAction(BaseAction):
 
 
 class MoveAction(BaseAction):
-    dx: int
-    dy: int
-
     def __init__(self, *, dx: int = 0, dy: int = 0):
         super().__init__()
 
-        self.dx = dx
-        self.dy = dy
+        self.dx: int = dx
+        self.dy: int = dy
 
     def perform(self, engine: yarl.engine.Engine, entity: yarl.entity.Entity) -> None:
         dest_x = entity.x + self.dx

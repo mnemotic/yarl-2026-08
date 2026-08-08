@@ -4,6 +4,7 @@
   "dictionaryDefinitions": [],
   "dictionaries": [],
   "words": [
+    "bresenham",
     "numpy",
     "pycache",
     "tcod",
