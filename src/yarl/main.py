@@ -62,4 +62,4 @@ def main() -> None:
         root_console = context.new_console(order="F")
         while True:
             engine.render(console=root_console, context=context)
-            engine.event_handler.handle_events()
+            engine.state.handle_events()

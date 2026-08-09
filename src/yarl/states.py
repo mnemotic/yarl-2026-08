@@ -41,7 +41,7 @@ WAIT_KEYS = {
 }
 
 
-class BaseEventHandler:
+class BaseState:
     def __init__(self, engine: yarl.engine.Engine):
         self.engine = engine
 
@@ -49,7 +49,7 @@ class BaseEventHandler:
     def dispatch(self, event: tcod.event.Event) -> yarl.action.Action | None: ...
 
 
-class MainGameEventHandler(BaseEventHandler):
+class MainGameState(BaseState):
     def handle_events(self) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
@@ -80,7 +80,7 @@ class MainGameEventHandler(BaseEventHandler):
         return action
 
 
-class GameOverEventHandler(BaseEventHandler):
+class GameOverState(BaseState):
     def handle_events(self) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)

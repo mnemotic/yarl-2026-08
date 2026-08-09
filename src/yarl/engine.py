@@ -5,7 +5,7 @@ from tcod.map import compute_fov
 
 import yarl.entity
 import yarl.game_map
-import yarl.input_handlers
+import yarl.states
 from yarl.state import State
 
 
@@ -16,7 +16,7 @@ class Engine:
         self,
         player: yarl.entity.Actor,
     ):
-        self.event_handler: State = yarl.input_handlers.MainGameEventHandler(self)
+        self.state: State = yarl.states.MainGameState(self)
         self.player: yarl.entity.Actor = player
 
     def handle_npc_turns(self) -> None:
