@@ -1,5 +1,6 @@
 import yarl.entity
 from yarl.components.base_component import BaseComponent
+from yarl.input_handlers import GameOverEventHandler
 from yarl.render_order import RenderOrder
 
 
@@ -25,6 +26,7 @@ class Combatant(BaseComponent):
     def die(self) -> None:
         if self.engine.player is self.entity:
             death_message = "You died!"
+            self.engine.event_handler = GameOverEventHandler(self.engine)
         else:
             death_message = f"{self.entity.name} is dead!"
 

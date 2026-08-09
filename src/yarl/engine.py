@@ -16,7 +16,7 @@ class Engine:
         self,
         player: yarl.entity.Actor,
     ):
-        self.event_handler: State = yarl.input_handlers.EventHandler(self)
+        self.event_handler: State = yarl.input_handlers.MainGameEventHandler(self)
         self.player: yarl.entity.Actor = player
 
     def handle_npc_turns(self) -> None:
@@ -43,6 +43,7 @@ class Engine:
             x=1,
             y=47,
             text=f"HP: {self.player.combatant.hp:^4} / {self.player.combatant.max_hp:^4}",
+            fg=(255, 255, 255),
         )
 
         context.present(console)

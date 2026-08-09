@@ -41,10 +41,15 @@ WAIT_KEYS = {
 }
 
 
-class EventHandler:
+class BaseEventHandler:
     def __init__(self, engine: yarl.engine.Engine):
         self.engine = engine
 
+    def handle_events(self) -> None: ...
+    def dispatch(self, event: tcod.event.Event) -> yarl.action.Action | None: ...
+
+
+class MainGameEventHandler(BaseEventHandler):
     def handle_events(self) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
@@ -71,5 +76,26 @@ class EventHandler:
                 action = yarl.actions.WaitAction(player)
             case tcod.event.KeyDown(sym=tcod.event.KeySym.ESCAPE):
                 action = yarl.actions.QuitAction(player)
+
+        return action
+
+
+class GameOverEventHandler(BaseEventHandler):
+    def handle_events(self) -> None:
+        for event in tcod.event.wait():
+            action = self.dispatch(event)
+            if action is None:
+                continue
+            action.perform()
+
+    def dispatch(self, event: tcod.event.Event) -> yarl.action.Action | None:
+        action: yarl.action.Action | None = None
+
+        match event:
+            case tcod.event.Quit():
+                raise SystemExit()
+
+            case tcod.event.KeyDown(sym=tcod.event.KeySym.ESCAPE):
+                action = yarl.actions.QuitAction(self.engine.player)
 
         return action
