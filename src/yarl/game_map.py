@@ -61,8 +61,11 @@ class GameMap:
             choicelist=[self.tiles["visible"], self.tiles["obscured"]],
             default=tiles.SHROUD,
         )
-        for entity in self.entities:
-            if self.visible[entity.x, entity.y]:
-                console.print(
-                    x=entity.x, y=entity.y, text=chr(entity.char), fg=entity.color
-                )
+
+        entities_sorted_for_rendering = sorted(
+            self.entities, key=lambda x: x.render_order.value
+        )
+
+        for e in entities_sorted_for_rendering:
+            if self.visible[e.x, e.y]:
+                console.print(x=e.x, y=e.y, text=chr(e.char), fg=e.color)

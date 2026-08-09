@@ -14,10 +14,10 @@ class Engine:
 
     def __init__(
         self,
-        player: yarl.entity.Entity,
+        player: yarl.entity.Actor,
     ):
         self.event_handler: State = yarl.input_handlers.EventHandler(self)
-        self.player: yarl.entity.Entity = player
+        self.player: yarl.entity.Actor = player
 
     def handle_npc_turns(self) -> None:
         for e in set(self.game_map.actors) - {self.player}:

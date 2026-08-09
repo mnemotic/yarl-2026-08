@@ -2,8 +2,9 @@ import copy
 from typing import Self
 
 from yarl.components import ai
-from yarl.components.fighter import Fighter
+from yarl.components.combatant import Combatant
 from yarl.game_map import GameMap
+from yarl.render_order import RenderOrder
 
 
 class Entity:
@@ -20,6 +21,7 @@ class Entity:
         color: tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         blocks_movement: bool = False,
+        render_order: RenderOrder = RenderOrder.CORPSE,
     ):
         self.x = x
         self.y = y
@@ -27,6 +29,7 @@ class Entity:
         self.color = color
         self.name = name
         self.blocks_movement = blocks_movement
+        self.render_order = render_order
         if game_map:
             self.game_map = game_map
             game_map.entities.add(self)
@@ -64,7 +67,7 @@ class Actor(Entity):
         color: tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         ai_cls: type[ai.BaseAI],
-        fighter: Fighter,
+        combatant: Combatant,
     ):
         super().__init__(
             x=x,
@@ -73,10 +76,11 @@ class Actor(Entity):
             color=color,
             name=name,
             blocks_movement=True,
+            render_order=RenderOrder.ACTOR,
         )
         self.ai: ai.BaseAI | None = ai_cls(self)
-        self.fighter = fighter
-        self.fighter.entity = self
+        self.combatant = combatant
+        self.combatant.entity = self
 
     @property
     def is_alive(self) -> bool:
