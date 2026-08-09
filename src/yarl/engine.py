@@ -5,7 +5,7 @@ from tcod.map import compute_fov
 
 import yarl.entity
 import yarl.game_map
-from yarl.input_handlers import EventHandler
+import yarl.input_handlers
 from yarl.state import State
 
 
@@ -16,11 +16,13 @@ class Engine:
         self,
         player: yarl.entity.Entity,
     ):
-        self.event_handler: State = EventHandler(self)
+        self.event_handler: State = yarl.input_handlers.EventHandler(self)
         self.player: yarl.entity.Entity = player
 
     def handle_npc_turns(self) -> None:
-        for e in self.game_map.entities - {self.player}:
+        for e in set(self.game_map.actors) - {self.player}:
+            if e.ai:
+                e.ai.perform()
             print(f"The {e.name} wonders when it will get to take a real turn.")
 
     def update_fov(self) -> None:

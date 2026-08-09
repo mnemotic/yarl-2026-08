@@ -3,6 +3,7 @@ import yarl.entity
 
 
 class BaseAction:
+    def perform(self) -> None: ...
     def __init__(self, entity: yarl.entity.Entity) -> None:
         super().__init__()
         self.entity = entity
@@ -61,3 +62,8 @@ class MoveAction(DirectionalAction):
         if self.engine.game_map.get_blocking_entity_at(dest_x, dest_y):
             return
         self.entity.move(self.dx, self.dy)
+
+
+class WaitAction(BaseAction):
+    def perform(self) -> None:
+        pass

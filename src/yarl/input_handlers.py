@@ -1,8 +1,8 @@
 import tcod.event
 
+import yarl.action
+import yarl.actions
 import yarl.engine
-from yarl.action import Action
-from yarl.actions import BumpAction, QuitAction
 
 
 class EventHandler:
@@ -20,8 +20,8 @@ class EventHandler:
             self.engine.handle_npc_turns()
             self.engine.update_fov()
 
-    def dispatch(self, event: tcod.event.Event) -> Action | None:
-        action: Action | None = None
+    def dispatch(self, event: tcod.event.Event) -> yarl.action.Action | None:
+        action: yarl.action.Action | None = None
 
         player = self.engine.player
 
@@ -30,15 +30,15 @@ class EventHandler:
                 raise SystemExit()
 
             case tcod.event.KeyDown(sym=tcod.event.KeySym.UP):
-                action = BumpAction(player, dy=-1)
+                action = yarl.actions.BumpAction(player, dy=-1)
             case tcod.event.KeyDown(sym=tcod.event.KeySym.DOWN):
-                action = BumpAction(player, dy=+1)
+                action = yarl.actions.BumpAction(player, dy=+1)
             case tcod.event.KeyDown(sym=tcod.event.KeySym.LEFT):
-                action = BumpAction(player, dx=-1)
+                action = yarl.actions.BumpAction(player, dx=-1)
             case tcod.event.KeyDown(sym=tcod.event.KeySym.RIGHT):
-                action = BumpAction(player, dx=+1)
+                action = yarl.actions.BumpAction(player, dx=+1)
 
             case tcod.event.KeyDown(sym=tcod.event.KeySym.ESCAPE):
-                action = QuitAction(player)
+                action = yarl.actions.QuitAction(player)
 
         return action

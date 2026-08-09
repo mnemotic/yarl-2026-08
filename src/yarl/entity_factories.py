@@ -1,13 +1,27 @@
-from yarl import entity
+import yarl.entity
+from yarl.components.ai import HostileEnemy
+from yarl.components.fighter import Fighter
 
-player = entity.Entity(
-    char=ord("@"), color=(255, 255, 255), name="Player", blocks_movement=True
+player = yarl.entity.Actor(
+    char=ord("@"),
+    color=(255, 255, 255),
+    name="Player",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=30, defense=2, power=5),
 )
 
-goblin = entity.Entity(
-    char=ord("g"), color=(63, 127, 63), name="Goblin", blocks_movement=True
+goblin = yarl.entity.Actor(
+    char=ord("g"),
+    color=(63, 127, 63),
+    name="Goblin",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=10, defense=0, power=3),
 )
 
-orc = entity.Entity(
-    char=ord("o"), color=(63, 127, 63), name="Orc", blocks_movement=True
+orc = yarl.entity.Actor(
+    char=ord("o"),
+    color=(63, 127, 63),
+    name="Orc",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=16, defense=1, power=4),
 )

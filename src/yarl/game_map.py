@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 
 import numpy as np
 from tcod.console import Console
@@ -27,6 +27,12 @@ class GameMap:
         self.visible = np.full((width, height), fill_value=False, order="F")
         self.explored = np.full((width, height), fill_value=False, order="F")
 
+    @property
+    def actors(self) -> Iterator[yarl.entity.Actor]:
+        yield from (
+            e for e in self.entities if isinstance(e, yarl.entity.Actor) and e.is_alive
+        )
+
     def in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
 
@@ -34,6 +40,12 @@ class GameMap:
         for e in self.entities:
             if e.blocks_movement and e.x == x and e.y == y:
                 return e
+        return None
+
+    def get_actor_at(self, x: int, y: int) -> yarl.entity.Actor | None:
+        for a in self.actors:
+            if a.x == x and a.y == y:
+                return a
         return None
 
     def render(self, console: Console) -> None:

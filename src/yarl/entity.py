@@ -1,6 +1,8 @@
 import copy
 from typing import Self
 
+from yarl.components import ai
+from yarl.components.fighter import Fighter
 from yarl.game_map import GameMap
 
 
@@ -50,3 +52,32 @@ class Entity:
     def move(self, dx: int, dy: int) -> None:
         self.x += dx
         self.y += dy
+
+
+class Actor(Entity):
+    def __init__(
+        self,
+        *,
+        x: int = 0,
+        y: int = 0,
+        char: int = ord("?"),
+        color: tuple[int, int, int] = (255, 255, 255),
+        name: str = "<Unnamed>",
+        ai_cls: type[ai.BaseAI],
+        fighter: Fighter,
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            color=color,
+            name=name,
+            blocks_movement=True,
+        )
+        self.ai: ai.BaseAI | None = ai_cls(self)
+        self.fighter = fighter
+        self.fighter.entity = self
+
+    @property
+    def is_alive(self) -> bool:
+        return bool(self.ai)
