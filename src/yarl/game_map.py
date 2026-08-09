@@ -3,14 +3,20 @@ from collections.abc import Iterable
 import numpy as np
 from tcod.console import Console
 
+import yarl.engine
 import yarl.entity
 import yarl.tile_types as tiles
 
 
 class GameMap:
     def __init__(
-        self, width: int, height: int, entities: Iterable[yarl.entity.Entity] = ()
+        self,
+        engine: yarl.engine.Engine,
+        width: int,
+        height: int,
+        entities: Iterable[yarl.entity.Entity] = (),
     ):
+        self.engine = engine
         self.width: int = width
         self.height: int = height
         self.entities = set(entities)

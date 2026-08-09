@@ -1,42 +1,27 @@
-from collections.abc import Iterable
-from typing import Any
-
 from tcod import libtcodpy
 from tcod.console import Console
 from tcod.context import Context
 from tcod.map import compute_fov
 
-from yarl.entity import Entity
-from yarl.game_map import GameMap
+import yarl.entity
+import yarl.game_map
 from yarl.input_handlers import EventHandler
 from yarl.state import State
 
 
 class Engine:
+    game_map: yarl.game_map.GameMap
+
     def __init__(
         self,
-        event_handler: EventHandler,
-        game_map: GameMap,
-        player: Entity,
+        player: yarl.entity.Entity,
     ):
-        self.event_handler: State = event_handler
-        self.game_map: GameMap = game_map
-        self.player: Entity = player
-
-        self.update_fov()
+        self.event_handler: State = EventHandler(self)
+        self.player: yarl.entity.Entity = player
 
     def handle_npc_turns(self) -> None:
         for e in self.game_map.entities - {self.player}:
             print(f"The {e.name} wonders when it will get to take a real turn.")
-
-    def handle_events(self, events: Iterable[Any]) -> None:
-        for event in events:
-            action = self.event_handler.dispatch(event)
-            if action is None:
-                continue
-            action.perform(self, self.player)
-            self.handle_npc_turns()
-            self.update_fov()
 
     def update_fov(self) -> None:
         """Recompute the visible are based on player's point of view."""

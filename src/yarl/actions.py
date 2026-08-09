@@ -3,38 +3,47 @@ import yarl.entity
 
 
 class BaseAction:
-    pass
+    def __init__(self, entity: yarl.entity.Entity) -> None:
+        super().__init__()
+        self.entity = entity
+
+    @property
+    def engine(self) -> yarl.engine.Engine:
+        return self.entity.game_map.engine
 
 
 class QuitAction(BaseAction):
-    def perform(self, engine: yarl.engine.Engine, entity: yarl.entity.Entity) -> None:
+    def perform(self) -> None:
         raise SystemExit()
 
 
 class DirectionalAction(BaseAction):
-    def __init__(self, *, dx: int = 0, dy: int = 0):
-        super().__init__()
+    def __init__(self, entity: yarl.entity.Entity, dx: int = 0, dy: int = 0):
+        super().__init__(entity)
 
         self.dx = dx
         self.dy = dy
 
+    @property
+    def dest_xy(self) -> tuple[int, int]:
+        return self.entity.x + self.dx, self.entity.y + self.dy
+
+    @property
+    def blocking_entity(self) -> yarl.entity.Entity | None:
+        return self.engine.game_map.get_blocking_entity_at(*self.dest_xy)
+
 
 class BumpAction(DirectionalAction):
-    def perform(self, engine: yarl.engine.Engine, entity: yarl.entity.Entity) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
-
-        if engine.game_map.get_blocking_entity_at(dest_x, dest_y):
-            return MeleeAttackAction(dx=self.dx, dy=self.dy).perform(engine, entity)
+    def perform(self) -> None:
+        if self.blocking_entity:
+            return MeleeAttackAction(self.entity, self.dx, self.dy).perform()
         else:
-            return MoveAction(dx=self.dx, dy=self.dy).perform(engine, entity)
+            return MoveAction(self.entity, self.dx, self.dy).perform()
 
 
 class MeleeAttackAction(DirectionalAction):
-    def perform(self, engine: yarl.engine.Engine, entity: yarl.entity.Entity) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
-        target = engine.game_map.get_blocking_entity_at(dest_x, dest_y)
+    def perform(self) -> None:
+        target = self.blocking_entity
         if not target:
             return
 
@@ -42,13 +51,13 @@ class MeleeAttackAction(DirectionalAction):
 
 
 class MoveAction(DirectionalAction):
-    def perform(self, engine: yarl.engine.Engine, entity: yarl.entity.Entity) -> None:
-        dest_x = entity.x + self.dx
-        dest_y = entity.y + self.dy
-        if not engine.game_map.in_bounds(dest_x, dest_y):
+    def perform(self) -> None:
+        dest_x, dest_y = self.dest_xy
+
+        if not self.engine.game_map.in_bounds(dest_x, dest_y):
             return
-        if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return
-        if engine.game_map.get_blocking_entity_at(dest_x, dest_y):
+        if self.engine.game_map.get_blocking_entity_at(dest_x, dest_y):
             return
-        entity.move(self.dx, self.dy)
+        self.entity.move(self.dx, self.dy)

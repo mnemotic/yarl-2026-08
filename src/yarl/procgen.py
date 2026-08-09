@@ -3,10 +3,10 @@ from collections.abc import Iterator
 
 import tcod
 
+import yarl.engine
 import yarl.entity_factories
 import yarl.tile_types as tiles
 from yarl import game_map
-from yarl.entity import Entity
 
 
 class RectangularRoom:
@@ -60,9 +60,10 @@ def generate_dungeon(
     room_min_size: int,
     room_max_size: int,
     max_monsters_per_room: int,
-    player: Entity,
+    engine: yarl.engine.Engine,
 ) -> game_map.GameMap:
-    dungeon = game_map.GameMap(map_width, map_height, entities=[player])
+    player = engine.player
+    dungeon = game_map.GameMap(engine, map_width, map_height, entities=[player])
 
     rooms: list[RectangularRoom] = []
 
@@ -80,7 +81,7 @@ def generate_dungeon(
         dungeon.tiles[room.interior] = tiles.floor
 
         if len(rooms) == 0:
-            player.x, player.y = room.center
+            player.place(*room.center, dungeon)
         else:
             for x, y in make_tunnel(rooms[-1].center, room.center):
                 dungeon.tiles[x, y] = tiles.floor

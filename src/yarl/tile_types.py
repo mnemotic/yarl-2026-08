@@ -43,13 +43,13 @@ def new_tile(
 floor = new_tile(
     walkable=True,
     transparent=True,
-    obscured=(ord("."), (255, 255, 255), (50, 50, 150)),
-    visible=(ord("."), (255, 255, 255), (200, 180, 50)),
+    obscured=(ord("."), (100, 100, 100), (0, 0, 0)),
+    visible=(ord("."), (200, 200, 200), (0, 0, 0)),
 )
 
 wall = new_tile(
     walkable=False,
     transparent=False,
-    obscured=(ord("\u2593"), (255, 255, 255), (0, 0, 100)),
-    visible=(ord("\u2593"), (255, 255, 255), (130, 110, 50)),
+    obscured=(ord("#"), (100, 100, 100), (0, 0, 0)),
+    visible=(ord("#"), (200, 200, 200), (0, 0, 0)),
 )

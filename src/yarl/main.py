@@ -6,7 +6,6 @@ import tcod
 
 import yarl.entity_factories
 from yarl.engine import Engine
-from yarl.input_handlers import EventHandler
 from yarl.procgen import generate_dungeon
 
 KEY_COMMANDS = {
@@ -41,18 +40,17 @@ def main() -> None:
 
     player = deepcopy(yarl.entity_factories.player)
 
-    game_map = generate_dungeon(
+    engine = Engine(player=player)
+    engine.game_map = generate_dungeon(
         map_height=map_height,
         map_width=map_width,
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
         max_monsters_per_room=max_monsters_per_room,
-        player=player,
+        engine=engine,
     )
-
-    event_handler = EventHandler()
-    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
+    engine.update_fov()
 
     with tcod.context.new(
         columns=screen_width,
@@ -64,5 +62,4 @@ def main() -> None:
         root_console = context.new_console(order="F")
         while True:
             engine.render(console=root_console, context=context)
-            events = tcod.event.wait()
-            engine.handle_events(events)
+            engine.event_handler.handle_events()
