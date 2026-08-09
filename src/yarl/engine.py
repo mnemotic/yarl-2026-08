@@ -37,5 +37,13 @@ class Engine:
 
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
+
+        # Status bar.
+        console.print(
+            x=1,
+            y=47,
+            text=f"HP: {self.player.combatant.hp:^4} / {self.player.combatant.max_hp:^4}",
+        )
+
         context.present(console)
         console.clear(ch=ord("."), fg=(255 // 2, 255 // 2, 255 // 2))
