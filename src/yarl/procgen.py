@@ -3,9 +3,10 @@ from collections.abc import Iterator
 
 import tcod
 
+import yarl.entity_factories
 import yarl.tile_types as tiles
+from yarl import game_map
 from yarl.entity import Entity
-from yarl.game_map import GameMap
 
 
 class RectangularRoom:
@@ -58,9 +59,10 @@ def generate_dungeon(
     max_rooms: int,
     room_min_size: int,
     room_max_size: int,
+    max_monsters_per_room: int,
     player: Entity,
-) -> GameMap:
-    dungeon = GameMap(map_width, map_height)
+) -> game_map.GameMap:
+    dungeon = game_map.GameMap(map_width, map_height, entities=[player])
 
     rooms: list[RectangularRoom] = []
 
@@ -82,7 +84,25 @@ def generate_dungeon(
         else:
             for x, y in make_tunnel(rooms[-1].center, room.center):
                 dungeon.tiles[x, y] = tiles.floor
+            # Monsters are not places in the starting room.
+            place_entities(room, dungeon, max_monsters_per_room)
 
         rooms.append(room)
 
     return dungeon
+
+
+def place_entities(
+    room: RectangularRoom, dungeon: game_map.GameMap, max_entities: int
+) -> None:
+    num_entities = random.randint(0, max_entities)
+
+    for i in range(num_entities):
+        x = random.randint(room.x0 + 1, room.x1 - 1)
+        y = random.randint(room.y0 + 1, room.y1 - 1)
+
+        if not any(e.x == x and e.y == y for e in dungeon.entities):
+            if random.random() < 0.8:
+                yarl.entity_factories.goblin.spawn(dungeon, x, y)
+            else:
+                yarl.entity_factories.orc.spawn(dungeon, x, y)

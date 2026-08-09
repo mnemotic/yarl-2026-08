@@ -1,13 +1,19 @@
+from collections.abc import Iterable
+
 import numpy as np
 from tcod.console import Console
 
+import yarl.entity
 import yarl.tile_types as tiles
 
 
 class GameMap:
-    def __init__(self, width: int, height: int):
+    def __init__(
+        self, width: int, height: int, entities: Iterable[yarl.entity.Entity] = ()
+    ):
         self.width: int = width
         self.height: int = height
+        self.entities = set(entities)
         self.tiles = np.full((width, height), fill_value=tiles.wall, order="F")
 
         # Tiles that the player can see.
@@ -17,6 +23,12 @@ class GameMap:
 
     def in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
+
+    def get_blocking_entity_at(self, x: int, y: int) -> yarl.entity.Entity | None:
+        for e in self.entities:
+            if e.blocks_movement and e.x == x and e.y == y:
+                return e
+        return None
 
     def render(self, console: Console) -> None:
         """
@@ -31,3 +43,8 @@ class GameMap:
             choicelist=[self.tiles["visible"], self.tiles["obscured"]],
             default=tiles.SHROUD,
         )
+        for entity in self.entities:
+            if self.visible[entity.x, entity.y]:
+                console.print(
+                    x=entity.x, y=entity.y, text=chr(entity.char), fg=entity.color
+                )

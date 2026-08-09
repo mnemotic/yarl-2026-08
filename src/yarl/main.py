@@ -1,10 +1,11 @@
+from copy import deepcopy
 from importlib.resources import as_file, files
 from pathlib import Path
 
 import tcod
 
+import yarl.entity_factories
 from yarl.engine import Engine
-from yarl.entity import Entity
 from yarl.input_handlers import EventHandler
 from yarl.procgen import generate_dungeon
 
@@ -27,6 +28,8 @@ def main() -> None:
     room_min_size = 6
     max_rooms = 30
 
+    max_monsters_per_room = 2
+
     with as_file(files("yarl.assets").joinpath("zilk_16x16.png")) as f:
         tileset_filepath = f
         tileset = tcod.tileset.load_tilesheet(
@@ -36,9 +39,7 @@ def main() -> None:
             tcod.tileset.CHARMAP_CP437,
         )
 
-    player = Entity(screen_width // 2, screen_height // 2, ord("@"), (255, 255, 255))
-    rat = Entity(screen_width // 2 - 5, screen_height // 2, ord("r"), (255, 255, 0))
-    entities = {player, rat}
+    player = deepcopy(yarl.entity_factories.player)
 
     game_map = generate_dungeon(
         map_height=map_height,
@@ -46,13 +47,12 @@ def main() -> None:
         max_rooms=max_rooms,
         room_min_size=room_min_size,
         room_max_size=room_max_size,
+        max_monsters_per_room=max_monsters_per_room,
         player=player,
     )
 
     event_handler = EventHandler()
-    engine = Engine(
-        entities=entities, event_handler=event_handler, game_map=game_map, player=player
-    )
+    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
 
     with tcod.context.new(
         columns=screen_width,

@@ -1,7 +1,7 @@
 import tcod.event
 
 from yarl.action import Action
-from yarl.actions import MoveAction, QuitAction
+from yarl.actions import BumpAction, QuitAction
 
 
 class EventHandler:
@@ -13,13 +13,13 @@ class EventHandler:
                 raise SystemExit()
 
             case tcod.event.KeyDown(sym=tcod.event.KeySym.UP):
-                action = MoveAction(dy=-1)
+                action = BumpAction(dy=-1)
             case tcod.event.KeyDown(sym=tcod.event.KeySym.DOWN):
-                action = MoveAction(dy=+1)
+                action = BumpAction(dy=+1)
             case tcod.event.KeyDown(sym=tcod.event.KeySym.LEFT):
-                action = MoveAction(dx=-1)
+                action = BumpAction(dx=-1)
             case tcod.event.KeyDown(sym=tcod.event.KeySym.RIGHT):
-                action = MoveAction(dx=+1)
+                action = BumpAction(dx=+1)
 
             case tcod.event.KeyDown(sym=tcod.event.KeySym.ESCAPE):
                 action = QuitAction()
