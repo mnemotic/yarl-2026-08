@@ -3,6 +3,7 @@ import tcod.event
 import yarl.action
 import yarl.actions
 import yarl.engine
+from yarl.utils import get_content_scale, get_window_size
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -64,11 +65,28 @@ class MainGameState(BaseState):
     def dispatch(self, event: tcod.event.Event) -> yarl.action.Action | None:
         action: yarl.action.Action | None = None
 
-        player = self.engine.player
+        engine = self.engine
+        player = engine.player
 
         match event:
             case tcod.event.Quit():
                 raise SystemExit()
+
+            case tcod.event.WindowEvent(
+                type="DisplayScaleChanged", window_id=window_id
+            ):
+                sdl_window_p = tcod.lib.SDL_GetWindowFromID(window_id)
+                display_id = tcod.lib.SDL_GetDisplayForWindow(sdl_window_p)
+                engine.content_scale = get_content_scale(display_id)
+
+                context = engine.context
+                if context.sdl_window is not None:
+                    context.sdl_window.size = get_window_size(
+                        display_id,
+                        engine.tileset,
+                        engine.con_width,
+                        engine.con_height,
+                    )
 
             case tcod.event.KeyDown() as e if e.sym in MOVE_KEYS:
                 action = yarl.actions.BumpAction(player, *MOVE_KEYS[e.sym])

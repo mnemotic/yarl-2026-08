@@ -7,26 +7,26 @@ import tcod
 import yarl.entity_factories
 from yarl.engine import Engine
 from yarl.procgen import generate_dungeon
-
-KEY_COMMANDS = {
-    tcod.event.KeySym.UP: (0, -1),
-    tcod.event.KeySym.DOWN: (0, +1),
-    tcod.event.KeySym.LEFT: (-1, 0),
-    tcod.event.KeySym.RIGHT: (+1, 0),
-}
+from yarl.utils import get_content_scale, get_window_size
 
 
 def main() -> None:
-    screen_width = 80
-    screen_height = 50
+    # Console width and height, in tiles.
+    con_width = 80
+    con_height = 50
 
+    # Map width and height, in tiles.
     map_width = 80
     map_height = 45
 
+    # Min and max room dimensions, in tiles.
     room_max_size = 10
     room_min_size = 6
+
+    # Maximum number of rooms in a map.
     max_rooms = 30
 
+    # Maximum number of monsters per map [0, max_monsters_per_room].
     max_monsters_per_room = 2
 
     with as_file(files("yarl.assets").joinpath("zilk_16x16.png")) as f:
@@ -38,28 +38,48 @@ def main() -> None:
             tcod.tileset.CHARMAP_CP437,
         )
 
-    player = deepcopy(yarl.entity_factories.player)
+    #
+    # Calculate window size, taking into account high DPI scaling, if any.
+    #
 
-    engine = Engine(player=player)
-    engine.game_map = generate_dungeon(
-        map_height=map_height,
-        map_width=map_width,
-        max_rooms=max_rooms,
-        room_min_size=room_min_size,
-        room_max_size=room_max_size,
-        max_monsters_per_room=max_monsters_per_room,
-        engine=engine,
-    )
-    engine.update_fov()
+    tcod.lib.SDL_Init(tcod.lib.SDL_INIT_VIDEO)
+    display_id = tcod.lib.SDL_GetPrimaryDisplay()
+    # Window size, in pixels.
+    wnd_width, wnd_height = get_window_size(display_id, tileset, con_width, con_height)
 
     with tcod.context.new(
-        columns=screen_width,
-        rows=screen_height,
+        width=wnd_width,
+        height=wnd_height,
+        # columns=con_width,
+        # rows=con_height,
         tileset=tileset,
         title="YARL",
         vsync=True,
+        sdl_window_flags=0,  # Make the window non-resizable.
     ) as context:
-        root_console = context.new_console(order="F")
+        player = deepcopy(yarl.entity_factories.player)
+
+        engine = Engine(player, context, tileset, con_width, con_height)
+        engine.game_map = generate_dungeon(
+            map_height=map_height,
+            map_width=map_width,
+            max_rooms=max_rooms,
+            room_min_size=room_min_size,
+            room_max_size=room_max_size,
+            max_monsters_per_room=max_monsters_per_room,
+            engine=engine,
+        )
+        engine.update_fov()
+
+        scale = get_content_scale(display_id)
+        console = context.new_console(order="F", magnification=scale)
         while True:
-            engine.render(console=root_console, context=context)
+            # Create a new console if the scale has changed.
+            #
+            # There is no way to change the scale of an existing console?
+            if engine.content_scale != scale:
+                scale = engine.content_scale
+                console = context.new_console(order="F", magnification=scale)
+
+            engine.render(console=console, context=context)
             engine.state.handle_events()

@@ -1,12 +1,15 @@
+import tcod
 from tcod import libtcodpy
 from tcod.console import Console
 from tcod.context import Context
 from tcod.map import compute_fov
+from tcod.tileset import Tileset
 
 import yarl.entity
 import yarl.game_map
 import yarl.states
 from yarl.state import State
+from yarl.utils import get_content_scale
 
 
 class Engine:
@@ -15,9 +18,20 @@ class Engine:
     def __init__(
         self,
         player: yarl.entity.Actor,
+        context: Context,
+        tileset: Tileset,
+        con_width: int,
+        con_height: int,
     ):
         self.state: State = yarl.states.MainGameState(self)
-        self.player: yarl.entity.Actor = player
+        self.player = player
+        self.context = context
+        self.tileset = tileset
+        self.con_width = con_width
+        self.con_height = con_height
+
+        display_id = tcod.lib.SDL_GetDisplayForWindow(self.context.sdl_window_p)
+        self.content_scale = get_content_scale(display_id)
 
     def handle_npc_turns(self) -> None:
         for e in set(self.game_map.actors) - {self.player}:
