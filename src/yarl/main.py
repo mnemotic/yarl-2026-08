@@ -1,14 +1,20 @@
 from copy import deepcopy
-from importlib.resources import as_file, files
 from pathlib import Path
 
 import tcod
 
 import yarl.entity_factories
-from yarl import colors
+from yarl import YARL_ASSET_DIR, colors
 from yarl.engine import Engine
 from yarl.procgen import generate_dungeon
 from yarl.utils import get_content_scale, get_window_size
+
+
+def get_asset_path(asset: str) -> Path:
+    asset_dir = Path(YARL_ASSET_DIR)
+    asset_path = asset_dir.joinpath(asset)
+
+    return asset_path
 
 
 def main() -> None:
@@ -30,14 +36,13 @@ def main() -> None:
     # Maximum number of monsters per map [0, max_monsters_per_room].
     max_monsters_per_room = 2
 
-    with as_file(files("yarl.assets").joinpath("zilk_16x16.png")) as f:
-        tileset_filepath = f
-        tileset = tcod.tileset.load_tilesheet(
-            Path(tileset_filepath),
-            16,
-            16,
-            tcod.tileset.CHARMAP_CP437,
-        )
+    tileset_path = get_asset_path("zilk_16x16.png")
+    tileset = tcod.tileset.load_tilesheet(
+        tileset_path,
+        16,
+        16,
+        tcod.tileset.CHARMAP_CP437,
+    )
 
     #
     # Calculate window size, taking into account high DPI scaling, if any.

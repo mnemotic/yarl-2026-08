@@ -1,13 +1,15 @@
-from importlib.metadata import version
+import sys
+from os import path
 
 import tcod
 
-assert __package__ is not None
-__version__ = version(__package__)
+YARL_DATA_DIR = sys._MEIPASS if hasattr(sys, "_MEIPASS") else path.dirname(__file__)
+YARL_ASSET_DIR = path.abspath(path.join(YARL_DATA_DIR, "assets"))
 
+__version__ = "0.1.0"
 
 tcod.lib.SDL_SetAppMetadata(
-    bytes(__package__.encode()),
+    b"YARL",
     bytes(__version__.encode()),
     b"dev.mnemotic.yarl-202608",
 )
