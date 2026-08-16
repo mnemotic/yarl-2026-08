@@ -44,6 +44,14 @@ WAIT_KEYS = {
 }
 
 
+CURSOR_Y_KEYS = {
+    tcod.event.KeySym.UP: -1,
+    tcod.event.KeySym.DOWN: 1,
+    tcod.event.KeySym.PAGEUP: -10,
+    tcod.event.KeySym.PAGEDOWN: 10,
+}
+
+
 class BaseState:
     def __init__(self, engine: yarl.engine.Engine):
         self.engine = engine
@@ -111,6 +119,9 @@ class MainGameState(BaseState):
             case tcod.event.KeyDown(sym=tcod.event.KeySym.ESCAPE):
                 action = yarl.actions.QuitAction(player)
 
+            case tcod.event.KeyDown(sym=tcod.event.KeySym.V):
+                self.engine.state = JournalViewer(self.engine)
+
         return action
 
 
@@ -133,3 +144,57 @@ class GameOverState(BaseState):
                 action = yarl.actions.QuitAction(self.engine.player)
 
         return action
+
+
+class JournalViewer(BaseState):
+    def __init__(self, engine: yarl.engine.Engine):
+        super().__init__(engine)
+        self.log_length = len(engine.message_log.messages)
+        self.cursor = self.log_length - 1
+
+    def on_render(self, console: Console) -> None:
+        super().on_render(console)
+
+        log_console = Console(console.width - 6, console.height - 6)
+        log_console.draw_frame(0, 0, log_console.width, log_console.height)
+        log_console.print(
+            x=0,
+            y=0,
+            width=log_console.width,
+            height=1,
+            text="┤Message history├",
+            alignment=tcod.lib.TCOD_CENTER,
+        )
+
+        self.engine.message_log.print_messages(
+            log_console,
+            1,
+            1,
+            log_console.width - 2,
+            log_console.height - 2,
+            self.engine.message_log.messages[: self.cursor + 1],
+        )
+        log_console.blit(console, 3, 3)
+
+    def dispatch(self, event: tcod.event.Event) -> yarl.action.Action | None:
+        return None
+
+    def handle_events(self, context: Context) -> None:
+        for event in tcod.event.get():
+            match event:
+                case tcod.event.KeyDown(sym=sym) if sym in CURSOR_Y_KEYS:
+                    delta = CURSOR_Y_KEYS[sym]
+                    if delta < 0 and self.cursor == 0:
+                        self.cursor = self.log_length - 1
+                    elif delta > 0 and self.cursor == self.log_length - 1:
+                        self.cursor = 0
+                    else:
+                        self.cursor = max(
+                            0, min(self.cursor + delta, self.log_length - 1)
+                        )
+                case tcod.event.KeyDown(sym=tcod.event.KeySym.HOME):
+                    self.cursor = 0
+                case tcod.event.KeyDown(sym=tcod.event.KeySym.END):
+                    self.cursor = self.log_length - 1
+                case tcod.event.KeyDown(sym=tcod.event.KeySym.ESCAPE):
+                    self.engine.state = MainGameState(self.engine)
