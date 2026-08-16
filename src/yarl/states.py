@@ -1,4 +1,6 @@
 import tcod.event
+from tcod.console import Console
+from tcod.context import Context
 
 import yarl.action
 import yarl.actions
@@ -46,13 +48,27 @@ class BaseState:
     def __init__(self, engine: yarl.engine.Engine):
         self.engine = engine
 
-    def handle_events(self) -> None: ...
+    def handle_events(self, context: Context) -> None: ...
+
+    def on_render(self, console: Console) -> None:
+        self.engine.render(console)
+
     def dispatch(self, event: tcod.event.Event) -> yarl.action.Action | None: ...
 
 
 class MainGameState(BaseState):
-    def handle_events(self) -> None:
+    def handle_events(self, context: Context) -> None:
         for event in tcod.event.wait():
+            context.convert_event(event)
+            match event:
+                case tcod.event.MouseMotion(tile=tile):
+                    x, y = tile
+                    if self.engine.game_map.in_bounds(x, y):
+                        self.engine.cursor_position = x, y
+                    else:
+                        self.engine.cursor_position = None
+                    continue
+
             action = self.dispatch(event)
             if action is None:
                 continue
@@ -99,7 +115,7 @@ class MainGameState(BaseState):
 
 
 class GameOverState(BaseState):
-    def handle_events(self) -> None:
+    def handle_events(self, context: Context) -> None:
         for event in tcod.event.wait():
             action = self.dispatch(event)
             if action is None:

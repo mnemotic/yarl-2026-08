@@ -86,5 +86,7 @@ def main() -> None:
                 scale = engine.content_scale
                 console = context.new_console(order="F", magnification=scale)
 
-            engine.render(console=console, context=context)
-            engine.state.handle_events()
+            console.clear()
+            engine.state.on_render(console)
+            context.present(console)
+            engine.state.handle_events(context)
