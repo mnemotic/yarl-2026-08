@@ -9,6 +9,7 @@ import yarl.entity
 import yarl.game_map
 import yarl.states
 from yarl.state import State
+from yarl.ui import draw_hp_bar
 from yarl.utils import get_content_scale
 
 
@@ -52,12 +53,13 @@ class Engine:
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
 
-        # Status bar.
-        console.print(
-            x=1,
-            y=47,
-            text=f"HP: {self.player.combatant.hp:^4} / {self.player.combatant.max_hp:^4}",
-            fg=(255, 255, 255),
+        draw_hp_bar(
+            console=console,
+            x=0,
+            y=45,
+            value=self.player.combatant.hp,
+            max_value=self.player.combatant.max_hp,
+            width=20,
         )
 
         context.present(console)
