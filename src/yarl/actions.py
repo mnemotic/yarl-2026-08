@@ -1,5 +1,6 @@
 import yarl.engine
 import yarl.entity
+from yarl import colors
 
 
 class BaseAction:
@@ -52,14 +53,20 @@ class MeleeAttackAction(DirectionalAction):
         if not target:
             return
 
+        log = self.engine.message_log
+
         damage = self.entity.combatant.power - target.combatant.defense
 
         attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        if self.entity is self.engine.player:
+            color = colors.PLAYER_ATK
+        else:
+            color = colors.ENEMY_ATK
         if damage > 0:
-            print(f"{attack_desc} for {damage} hit points.")
+            log.append(f"{attack_desc} for {damage} hit points.", color)
             target.combatant.hp -= damage
         else:
-            print(f"{attack_desc} but does not damage.")
+            log.append(f"{attack_desc} but does not damage.", color)
 
 
 class MoveAction(DirectionalAction):

@@ -8,6 +8,7 @@ from tcod.tileset import Tileset
 import yarl.entity
 import yarl.game_map
 import yarl.states
+from yarl.message_log import MessageLog
 from yarl.state import State
 from yarl.ui import draw_hp_bar
 from yarl.utils import get_content_scale
@@ -25,6 +26,7 @@ class Engine:
         con_height: int,
     ):
         self.state: State = yarl.states.MainGameState(self)
+        self.message_log = MessageLog()
         self.player = player
         self.context = context
         self.tileset = tileset
@@ -38,7 +40,6 @@ class Engine:
         for e in set(self.game_map.actors) - {self.player}:
             if e.ai:
                 e.ai.perform()
-            print(f"The {e.name} wonders when it will get to take a real turn.")
 
     def update_fov(self) -> None:
         """Recompute the visible are based on player's point of view."""
@@ -52,6 +53,8 @@ class Engine:
 
     def render(self, console: Console, context: Context) -> None:
         self.game_map.render(console)
+
+        self.message_log.print(console=console, x=21, y=45, width=40, height=5)
 
         draw_hp_bar(
             console=console,

@@ -5,6 +5,7 @@ from pathlib import Path
 import tcod
 
 import yarl.entity_factories
+from yarl import colors
 from yarl.engine import Engine
 from yarl.procgen import generate_dungeon
 from yarl.utils import get_content_scale, get_window_size
@@ -17,7 +18,7 @@ def main() -> None:
 
     # Map width and height, in tiles.
     map_width = 80
-    map_height = 45
+    map_height = 43
 
     # Min and max room dimensions, in tiles.
     room_max_size = 10
@@ -70,6 +71,10 @@ def main() -> None:
             engine=engine,
         )
         engine.update_fov()
+        engine.message_log.append(
+            "Hello and welcome, adventurer, to yet another dungeon!",
+            colors.WELCOME_TEXT,
+        )
 
         scale = get_content_scale(display_id)
         console = context.new_console(order="F", magnification=scale)

@@ -1,4 +1,5 @@
 import yarl.entity
+from yarl import colors
 from yarl.components.base_component import BaseComponent
 from yarl.render_order import RenderOrder
 from yarl.states import GameOverState
@@ -25,10 +26,12 @@ class Combatant(BaseComponent):
 
     def die(self) -> None:
         if self.engine.player is self.entity:
-            death_message = "You died!"
+            message = "You died!"
+            color = colors.PLAYER_DIE
             self.engine.state = GameOverState(self.engine)
         else:
-            death_message = f"{self.entity.name} is dead!"
+            message = f"{self.entity.name} is dead!"
+            color = colors.ENEMY_DIE
 
         self.entity.char = ord("%")
         self.entity.color = (191, 0, 0)
@@ -37,4 +40,4 @@ class Combatant(BaseComponent):
         self.entity.name = f"remains of {self.entity.name}"
         self.entity.render_order = RenderOrder.CORPSE
 
-        print(death_message)
+        self.engine.message_log.append(message, color)
