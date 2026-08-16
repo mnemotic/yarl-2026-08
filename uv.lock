@@ -593,6 +593,15 @@ wheels = [
 ]
 
 [[package]]
+name = "tomlrt"
+version = "2.2.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/90/87/e562c97681fba128969622bfbf41e0dba0be6339ab4d943c6946414d8303/tomlrt-2.2.2.tar.gz", hash = "sha256:1ab5c1187c2e2f4ee0dd078142f531efbd623aaaed09c350bc9ee8150cb23c4f", size = 406967, upload-time = "2026-08-13T20:10:34.647Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7e/45/8d2905d2388fab4f62b4d45ed3b7b71a40e2d35fa2f513d071607f5ec13f/tomlrt-2.2.2-py3-none-any.whl", hash = "sha256:7edf2a55a5afccc76b971add88e4163f80bceefbfee3697b5566f17963cd1200", size = 144429, upload-time = "2026-08-13T20:10:33.358Z" },
+]
+
+[[package]]
 name = "tornado"
 version = "6.5.8"
 source = { registry = "https://pypi.org/simple" }
@@ -650,6 +659,7 @@ dev = [
     { name = "ipykernel" },
     { name = "pyinstaller" },
     { name = "ruff" },
+    { name = "tomlrt" },
 ]
 
 [package.metadata]
@@ -663,4 +673,5 @@ dev = [
     { name = "ipykernel", specifier = ">=7.3.0" },
     { name = "pyinstaller", specifier = ">=6.22.1" },
     { name = "ruff", specifier = ">=0.16.2" },
+    { name = "tomlrt", specifier = ">=2.2.2" },
 ]
