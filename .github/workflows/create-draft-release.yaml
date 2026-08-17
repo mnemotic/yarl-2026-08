@@ -46,24 +46,26 @@ jobs:
 
       - name: Rename bundle directory
         run: |
-          mv ./dist/yarl "./dist/yarl-${{ matrix.platform }}-${{ matrix.arch }}-${{ github.ref_name }}"
+          mv ./dist/yarl "./dist/yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ github.ref_name }}"
 
       - name: Create archive
         run: |
-          filename="yarl-${{ matrix.platform }}-${{ matrix.arch }}-${{ github.ref_name }}"
-          mkdir -p ./artifacts
+          filename="yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ github.ref_name }}"
+          mkdir -p ./uploads
           if [ "${RUNNER_OS}" == 'Windows' ]; then
             # Windows: Create a ZIP archive
-            pwsh -c "& {Compress-Archive -Path dist/* -DestinationPath './artifacts/${filename}.zip'}"
+            pwsh -c "& {Compress-Archive -Path dist/* -DestinationPath './uploads/${filename}.zip'}"
           else
             # Linux / macOS: Create a TGZ archive
-            tar -czvf "./artifacts/${filename}.tgz" -C ./dist .
+            tar -czvf "./uploads/${filename}.tar.gz" -C ./dist .
           fi
 
       - name: Attach archive to draft release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           draft: true
-          working_directory: ./artifacts
+          working_directory: ./uploads
           name: "Release ${{ github.ref_name }}"
           files: ./*
+
+# spell-checker:words czvf

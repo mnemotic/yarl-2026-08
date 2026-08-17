@@ -1,0 +1,52 @@
+name: Upload to itch.io
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip ${{ vars.BUTLER_DOWNLOAD_URL }}
+          mkdir -p ./tools/butler
+          unzip butler.zip -d ./tools/butler
+          chmod +x ./tools/butler/butler
+          # Add `butler` to PATH for following steps.
+          echo "PATH=${PATH}:${{ github.workspace }}/tools/butler" >> $GITHUB_ENV
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p ./downloads
+          gh release download '${{ github.event.release.tag_name }}' \
+            --repo ${{ github.repository }} \
+            --pattern 'yarl*' \
+            --dir ./downloads
+
+      - name: Upload to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          BUTLER_PUSH_SOURCE: ${{ vars.BUTLER_PUSH_SOURCE }}
+        run: |
+          butler -V
+          rex='yarl_([a-z]+)_'
+          for filename in $(ls ./downloads); do
+            if [[ "${filename}" =~ $rex ]]; then
+              channel="${BASH_REMATCH[1]}"
+              echo "Channel: ${channel}"
+            else
+              echo "Error: Failed to determine channel from filename '${filename}'" >&2
+              exit 1
+            fi
+            echo "Pushing file './downloads/${filename}' to channel '${channel}'..."
+            butler push \
+              --fix-permissions \
+              --no-auto-unzip \
+              --userversion="$(echo ${{ github.event.release.tag_name }} | cut -c2-)" \
+              "./downloads/${filename}" \
+              "${{ vars.ITCH_IO_PROJECT }}:${channel}-x64"
+          done
