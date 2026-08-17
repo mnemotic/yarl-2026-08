@@ -19,7 +19,8 @@ def is_upx_available():
 
 
 def should_use_upx():
-    """Enable UPX only on non-Windows platforms where it is available.
+    """
+    Enable UPX only on non-Windows platforms where it is available.
 
     UPX-compressed PE binaries trigger ML-based AV false positives
     (e.g. Trojan:Win32/Bearfoos.B!ml) on Windows Defender.
@@ -30,15 +31,16 @@ def should_use_upx():
 
 
 def read_version_from_pyproject(repo_root: Path) -> tuple[int, int, int, int]:
+    import semver
     import tomlrt
 
     pyproject = repo_root / "pyproject.toml"
     if not pyproject.exists():
         return (0, 0, 0, 0)
     with open(pyproject, "rb") as fp:
-        content = tomlrt.load(fp)
-        version = content["project"]["version"].split(".")
-        return (int(version[0]), int(version[1]), int(version[2]), 0)
+        doc = tomlrt.load(fp)
+        v = semver.Version.parse(doc["project"]["version"])
+        return (v.major, v.minor, v.patch, 0)
 
 
 # `SPECPATH` is a global variable set by PyInstaller.
