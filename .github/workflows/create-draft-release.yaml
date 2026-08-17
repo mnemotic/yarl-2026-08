@@ -1,0 +1,69 @@
+name: Create Draft Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  create-draft-release:
+    permissions:
+      contents: write
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        arch: [x86_64]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          lfs: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Bundle with PyInstaller
+        run: uv run pyinstaller yarl.spec --noconfirm
+
+      - name: Rename bundle directory
+        run: |
+          mv ./dist/yarl "./dist/yarl-${{ matrix.platform }}-${{ matrix.arch }}-${{ github.ref_name }}"
+
+      - name: Create archive
+        run: |
+          filename="yarl-${{ matrix.platform }}-${{ matrix.arch }}-${{ github.ref_name }}"
+          mkdir -p ./artifacts
+          if [ "${RUNNER_OS}" == 'Windows' ]; then
+            # Windows: Create a ZIP archive
+            pwsh -c "& {Compress-Archive -Path dist/* -DestinationPath './artifacts/${filename}.zip'}"
+          else
+            # Linux / macOS: Create a TGZ archive
+            tar -czvf "./artifacts/${filename}.tgz" -C ./dist .
+          fi
+
+      - name: Attach archive to draft release
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          draft: true
+          working_directory: ./artifacts
+          name: "Release ${{ github.ref_name }}"
+          files: ./*
