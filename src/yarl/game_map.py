@@ -28,6 +28,10 @@ class GameMap:
         self.explored = np.full((width, height), fill_value=False, order="F")
 
     @property
+    def game_map(self) -> GameMap:
+        return self
+
+    @property
     def actors(self) -> Iterator[yarl.entity.Actor]:
         yield from (
             e for e in self.entities if isinstance(e, yarl.entity.Actor) and e.is_alive

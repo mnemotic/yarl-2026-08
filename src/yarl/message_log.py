@@ -1,5 +1,5 @@
 import textwrap
-from collections.abc import Reversible
+from collections.abc import Iterable, Reversible
 
 from tcod.console import Console
 
@@ -34,7 +34,14 @@ class MessageLog:
         self.print_messages(console, x, y, width, height, self.messages)
 
     @staticmethod
+    def wrap(string: str, width: int) -> Iterable[str]:
+        """Return a wrapped string."""
+        for line in string.splitlines():
+            yield from textwrap.wrap(line, width, expand_tabs=True)
+
+    @classmethod
     def print_messages(
+        cls,
         console: Console,
         x: int,
         y: int,
@@ -44,7 +51,7 @@ class MessageLog:
     ) -> None:
         y_offset = 0
         for message in reversed(messages):
-            for line in textwrap.wrap(str(message), width):
+            for line in list(cls.wrap(message.text, width)):
                 console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
                 y_offset += 1
                 if y_offset >= height:

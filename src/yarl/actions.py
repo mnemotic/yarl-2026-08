@@ -11,7 +11,7 @@ class BaseAction:
 
     @property
     def engine(self) -> yarl.engine.Engine:
-        return self.entity.game_map.engine
+        return self.entity.parent.engine
 
 
 class QuitAction(BaseAction):

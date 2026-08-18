@@ -10,11 +10,11 @@ from yarl.render_order import RenderOrder
 class Entity:
     """Generic game object representing player chareacters, NPCs, items, etc."""
 
-    game_map: GameMap
+    parent: GameMap
 
     def __init__(
         self,
-        game_map: GameMap | None = None,
+        parent: GameMap | None = None,
         x: int = 0,
         y: int = 0,
         char: int = ord("?"),
@@ -30,16 +30,20 @@ class Entity:
         self.name = name
         self.blocks_movement = blocks_movement
         self.render_order = render_order
-        if game_map:
-            self.game_map = game_map
-            game_map.entities.add(self)
+        if parent:
+            self.parent = parent
+            parent.entities.add(self)
+
+    @property
+    def game_map(self) -> GameMap:
+        return self.parent.game_map
 
     def spawn(self, game_map: GameMap, x: int, y: int) -> Self:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
-        clone.game_map = game_map
+        clone.parent = game_map
         game_map.entities.add(clone)
         return clone
 
@@ -47,9 +51,9 @@ class Entity:
         self.x = x
         self.y = y
         if game_map:
-            if hasattr(self, "game_map"):
+            if hasattr(self, "parent") and self.parent is self.game_map:
                 self.game_map.entities.remove(self)
-            self.game_map = game_map
+            self.parent = game_map
             game_map.entities.add(self)
 
     def move(self, dx: int, dy: int) -> None:
@@ -80,7 +84,7 @@ class Actor(Entity):
         )
         self.ai: ai.BaseAI | None = ai_cls(self)
         self.combatant = combatant
-        self.combatant.entity = self
+        self.combatant.parent = self
 
     @property
     def is_alive(self) -> bool:

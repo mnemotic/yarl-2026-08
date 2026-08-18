@@ -1,3 +1,5 @@
+from abc import ABC
+
 import tcod.event
 from tcod.console import Console
 from tcod.context import Context
@@ -52,7 +54,7 @@ CURSOR_Y_KEYS = {
 }
 
 
-class BaseState:
+class BaseState(ABC):
     def __init__(self, engine: yarl.engine.Engine):
         self.engine = engine
 

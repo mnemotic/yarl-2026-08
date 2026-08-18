@@ -5,16 +5,14 @@ import yarl.action
 import yarl.actions
 import yarl.entity
 
-from .base_component import BaseComponent
 
-
-class BaseAI(yarl.actions.BaseAction, BaseComponent):
+class BaseAI(yarl.actions.BaseAction):
     entity: yarl.entity.Actor
 
     def get_path_to(self, x: int, y: int) -> list[tuple[int, int]]:
-        cost = np.array(self.entity.game_map.tiles["walkable"], dtype=np.int8)
+        cost = np.array(self.entity.parent.tiles["walkable"], dtype=np.int8)
 
-        for e in self.entity.game_map.entities:
+        for e in self.entity.parent.entities:
             if e.blocks_movement and cost[e.x, e.y]:
                 cost[e.x, e.y] += 10
 
