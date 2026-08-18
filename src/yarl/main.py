@@ -1,3 +1,4 @@
+import traceback
 from copy import deepcopy
 from pathlib import Path
 
@@ -93,6 +94,32 @@ def main() -> None:
                 console = context.new_console(order="F", magnification=scale)
 
             console.clear()
-            engine.state.on_render(console)
+            engine.state.render(console)
             context.present(console)
-            engine.state.handle_events(context)
+            try:
+                for event in tcod.event.get():
+                    match event:
+                        case tcod.event.Quit():
+                            raise SystemExit()
+
+                        case tcod.event.WindowEvent(
+                            type="DisplayScaleChanged", window_id=window_id
+                        ):
+                            sdl_window_p = tcod.lib.SDL_GetWindowFromID(window_id)
+                            display_id = tcod.lib.SDL_GetDisplayForWindow(sdl_window_p)
+                            engine.content_scale = get_content_scale(display_id)
+
+                            context = engine.context
+                            if context.sdl_window is not None:
+                                context.sdl_window.size = get_window_size(
+                                    display_id,
+                                    engine.tileset,
+                                    engine.con_width,
+                                    engine.con_height,
+                                )
+                        case _:
+                            context.convert_event(event)
+                            engine.state.handle_event(event)
+            except Exception:  # noqa: BLE001
+                traceback.print_exc()
+                engine.message_log.append(traceback.format_exc(), colors.ERROR)

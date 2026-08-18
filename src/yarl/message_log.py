@@ -51,7 +51,7 @@ class MessageLog:
     ) -> None:
         y_offset = 0
         for message in reversed(messages):
-            for line in list(cls.wrap(message.text, width)):
+            for line in list(cls.wrap(str(message), width)):
                 console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
                 y_offset += 1
                 if y_offset >= height:

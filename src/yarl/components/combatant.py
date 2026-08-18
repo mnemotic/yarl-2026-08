@@ -41,3 +41,13 @@ class Combatant(BaseComponent):
         self.parent.render_order = RenderOrder.CORPSE
 
         self.engine.message_log.append(message, color)
+
+    def heal(self, amount: int) -> int:
+        if self.hp == self.max_hp:
+            return 0
+
+        new_hp_value = min(self.hp + amount, self.max_hp)
+        amount_recovered = new_hp_value - self.hp
+        self.hp = new_hp_value
+
+        return amount_recovered
