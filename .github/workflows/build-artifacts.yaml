@@ -26,9 +26,11 @@ jobs:
     steps:
       - name: Get short commit hash
         id: get-commit-hash
-        run: |
-          hash=$(echo "${{ github.sha }}" | cut -c1-7)
-          echo "hash=${hash}" >> $GITHUB_OUTPUT
+        run: echo "hash=$(echo "${{ github.sha }}" | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Set output name
+        id: set-output-name
+        run: echo "name=yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ steps.get-commit-hash.outputs.hash }}" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -51,10 +53,10 @@ jobs:
         run: |
           uv run pyinstaller yarl.spec --noconfirm
           cp LICENSE ./dist/yarl/
-          mv ./dist/yarl "./dist/yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ github.ref_name }}"
+          mv ./dist/yarl "./dist/${{ steps.set-output-name.outputs.name }}"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ steps.get-commit-hash.outputs.hash }}
+          name: ${{ steps.set-output-name.outputs.name }}
           path: ./dist/
