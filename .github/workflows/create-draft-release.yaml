@@ -45,9 +45,6 @@ jobs:
         run: |
           uv run pyinstaller yarl.spec --noconfirm
           cp LICENSE ./dist/yarl/
-
-      - name: Rename bundle directory
-        run: |
           mv ./dist/yarl "./dist/yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ github.ref_name }}"
 
       - name: Create archive
