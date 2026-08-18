@@ -1,10 +1,9 @@
-import sys
 from os import path
 
 import tcod
 
-YARL_DATA_DIR = sys._MEIPASS if hasattr(sys, "_MEIPASS") else path.dirname(__file__)
-YARL_ASSET_DIR = path.abspath(path.join(YARL_DATA_DIR, "assets"))
+YARL_ASSET_DIR = path.abspath(path.join(path.dirname(__file__), "assets"))
+assert path.exists(YARL_ASSET_DIR)
 
 __version__ = "0.6.0"
 

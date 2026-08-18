@@ -8,6 +8,7 @@ from pathlib import Path
 
 from PyInstaller.building.api import COLLECT, EXE, PYZ
 from PyInstaller.building.build_main import Analysis
+from PyInstaller.utils.hooks import collect_data_files
 
 
 def is_upx_available():
@@ -99,9 +100,9 @@ if sys.platform == "win32":
 
 a = Analysis(
     [str(entry_point)],
-    pathex=[str(repo_root / "src")],
+    pathex=[],
     binaries=[],
-    datas=[("src/yarl/assets/*", "assets")],
+    datas=collect_data_files("yarl"),
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -132,6 +133,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     version=win_version_info,
+    contents_directory="bundle",
 )
 coll = COLLECT(
     exe,
