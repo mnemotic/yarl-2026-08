@@ -4,7 +4,7 @@ from pathlib import Path
 import tcod
 
 import yarl.entity_factories
-from yarl import YARL_ASSET_DIR, colors
+from yarl import YARL_ASSET_DIR, __version__, colors
 from yarl.engine import Engine
 from yarl.procgen import generate_dungeon
 from yarl.utils import get_content_scale, get_window_size
@@ -76,6 +76,7 @@ def main() -> None:
             engine=engine,
         )
         engine.update_fov()
+        engine.message_log.append(f"YARL - Yet Another Roguelike v{__version__}")
         engine.message_log.append(
             "Hello and welcome, adventurer, to yet another dungeon!",
             colors.WELCOME_TEXT,

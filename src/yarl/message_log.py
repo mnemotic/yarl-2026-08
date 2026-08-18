@@ -42,11 +42,10 @@ class MessageLog:
         height: int,
         messages: Reversible[Message],
     ) -> None:
-        y_offset = height - 1
-
+        y_offset = 0
         for message in reversed(messages):
-            for line in reversed(textwrap.wrap(str(message), width)):
+            for line in textwrap.wrap(str(message), width):
                 console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
-                y_offset -= 1
-                if y_offset < 0:
+                y_offset += 1
+                if y_offset >= height:
                     return
