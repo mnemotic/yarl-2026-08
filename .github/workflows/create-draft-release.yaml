@@ -42,7 +42,9 @@ jobs:
         run: uv sync --locked
 
       - name: Bundle with PyInstaller
-        run: uv run pyinstaller yarl.spec --noconfirm
+        run: |
+          uv run pyinstaller yarl.spec --noconfirm
+          cp LICENSE ./dist/yarl/
 
       - name: Rename bundle directory
         run: |

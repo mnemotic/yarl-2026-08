@@ -1,5 +1,7 @@
 # Yet Another Roguelike (YARL)
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 Yet Another Roguelike built for [RoguelikeDev Does The Complete Roguelike Tutorial 2026](https://www.reddit.com/r/roguelikedev/comments/1vd9noj/roguelikedev_does_the_complete_roguelike_tutorial/) by following [Yet Another Roguelike Tutorial](https://rogueliketutorials.com/tutorials/tcod/v2/).
 
 ## Installation
@@ -43,3 +45,8 @@ Requires `git`, `git lfs`, and `uv` to be installed.
 
 This will create a single directory bundle named `yarl` in `./dist`. This bundle
 directory can be distributed to user.
+
+## License
+
+This project is licensed under the **Apache License 2.0** - see the
+[LICENSE](LICENSE) file for details.

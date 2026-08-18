@@ -4,6 +4,8 @@ version = "0.6.0"
 description = "Yet Another Roguelike built for RoguelikeDev Does The Complete Roguelike Tutorial, August 2026."
 readme = "README.md"
 requires-python = ">=3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [{ name = "Martin Green", email = "mnemotic@pm.me" }]
 dependencies = [
   "numpy>=2.5.1",
