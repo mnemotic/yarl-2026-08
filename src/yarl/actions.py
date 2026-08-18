@@ -1,6 +1,7 @@
 import yarl.engine
 import yarl.entity
 from yarl import colors
+from yarl.exceptions import ImpossibleActionError
 
 
 class BaseAction:
@@ -12,11 +13,6 @@ class BaseAction:
     @property
     def engine(self) -> yarl.engine.Engine:
         return self.entity.parent.engine
-
-
-class QuitAction(BaseAction):
-    def perform(self) -> None:
-        raise SystemExit()
 
 
 class DirectionalAction(BaseAction):
@@ -51,7 +47,7 @@ class MeleeAttackAction(DirectionalAction):
     def perform(self) -> None:
         target = self.target_actor
         if not target:
-            return
+            raise ImpossibleActionError("Nothing to attack.")
 
         log = self.engine.message_log
 
@@ -74,11 +70,14 @@ class MoveAction(DirectionalAction):
         dest_x, dest_y = self.dest_xy
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            return
+            # Destination is out of bounds.
+            raise ImpossibleActionError("That way is blocked.")
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            return
+            # Destination is blocked by a tile.
+            raise ImpossibleActionError("That way is blocked.")
         if self.engine.game_map.get_blocking_entity_at(dest_x, dest_y):
-            return
+            # Destination is blocked by an entity.
+            raise ImpossibleActionError("That way is blocked.")
         self.entity.move(self.dx, self.dy)
 
 

@@ -8,6 +8,7 @@ from tcod.tileset import Tileset
 import yarl.entity
 import yarl.game_map
 import yarl.states
+from yarl.exceptions import ImpossibleActionError
 from yarl.message_log import MessageLog
 from yarl.state import State
 from yarl.ui import draw_hp_bar, draw_names_at_cursor
@@ -40,7 +41,10 @@ class Engine:
     def handle_npc_turns(self) -> None:
         for e in set(self.game_map.actors) - {self.player}:
             if e.ai:
-                e.ai.perform()
+                try:
+                    e.ai.perform()
+                except ImpossibleActionError as err:
+                    print(err)
 
     def update_fov(self) -> None:
         """Recompute the visible are based on player's point of view."""

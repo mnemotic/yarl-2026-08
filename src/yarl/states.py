@@ -163,7 +163,7 @@ class JournalViewer(BaseState):
                 self.cursor = 0
             case KeyDown(sym=KeySym.END):
                 self.cursor = self.log_length - 1
-            case KeyDown(sym=KeySym.ESCAPE):
+            case KeyDown(sym=KeySym.ESCAPE) | KeyDown(sym=KeySym.V):
                 self.engine.state = MainGameState(self.engine)
 
     def handle_action(self, action: yarl.action.Action | None) -> bool:
