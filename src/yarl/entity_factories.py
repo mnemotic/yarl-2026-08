@@ -1,6 +1,7 @@
 import yarl.entity
 from yarl.components.ai import HostileEnemy
 from yarl.components.combatant import Combatant
+from yarl.components.consumables import HealingConsumable
 
 player = yarl.entity.Actor(
     char=ord("@"),
@@ -24,4 +25,11 @@ orc = yarl.entity.Actor(
     name="Orc",
     ai_cls=HostileEnemy,
     combatant=Combatant(hp=16, defense=1, power=4),
+)
+
+healing_potion = yarl.entity.Item(
+    char=ord("!"),
+    color=(127, 0, 255),
+    name="Healing Potion",
+    consumable=HealingConsumable(4),
 )

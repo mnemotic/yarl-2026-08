@@ -34,8 +34,11 @@ def main() -> None:
     # Maximum number of rooms in a map.
     max_rooms = 30
 
-    # Maximum number of monsters per map [0, max_monsters_per_room].
+    # Maximum number of monsters per room [0, max_monsters_per_room].
     max_monsters_per_room = 2
+
+    # Maximum number of items per room [0, max_items_per_room].
+    max_items_per_room = 2
 
     tileset_path = get_asset_path("zilk_16x16.png")
     tileset = tcod.tileset.load_tilesheet(
@@ -74,6 +77,7 @@ def main() -> None:
             room_min_size=room_min_size,
             room_max_size=room_max_size,
             max_monsters_per_room=max_monsters_per_room,
+            max_items_per_room=max_items_per_room,
             engine=engine,
         )
         engine.update_fov()

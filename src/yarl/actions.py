@@ -1,11 +1,12 @@
+from abc import ABC, abstractmethod
+
 import yarl.engine
 import yarl.entity
 from yarl import colors
 from yarl.exceptions import ImpossibleActionError
 
 
-class BaseAction:
-    def perform(self) -> None: ...
+class BaseAction(ABC):
     def __init__(self, entity: yarl.entity.Actor) -> None:
         super().__init__()
         self.entity = entity
@@ -13,6 +14,9 @@ class BaseAction:
     @property
     def engine(self) -> yarl.engine.Engine:
         return self.entity.parent.engine
+
+    @abstractmethod
+    def perform(self) -> None: ...
 
 
 class DirectionalAction(BaseAction):
@@ -84,3 +88,24 @@ class MoveAction(DirectionalAction):
 class WaitAction(BaseAction):
     def perform(self) -> None:
         pass
+
+
+class UseItemAction(BaseAction):
+    def __init__(
+        self,
+        entity: yarl.entity.Actor,
+        item: yarl.entity.Item,
+        target: tuple[int, int] | None = None,
+    ):
+        super().__init__(entity)
+        self.item = item
+        if not target:
+            target = entity.x, entity.y
+        self.target = target
+
+    @property
+    def target_actor(self) -> yarl.entity.Actor | None:
+        return self.engine.game_map.get_actor_at(*self.target)
+
+    def perform(self) -> None:
+        self.item.consumable.activate(self)

@@ -60,6 +60,7 @@ def generate_dungeon(
     room_min_size: int,
     room_max_size: int,
     max_monsters_per_room: int,
+    max_items_per_room: int,
     engine: yarl.engine.Engine,
 ) -> game_map.GameMap:
     player = engine.player
@@ -86,7 +87,7 @@ def generate_dungeon(
             for x, y in make_tunnel(rooms[-1].center, room.center):
                 dungeon.tiles[x, y] = tiles.floor
             # Monsters are not places in the starting room.
-            place_entities(room, dungeon, max_monsters_per_room)
+            place_entities(room, dungeon, max_monsters_per_room, max_items_per_room)
 
         rooms.append(room)
 
@@ -94,11 +95,16 @@ def generate_dungeon(
 
 
 def place_entities(
-    room: RectangularRoom, dungeon: game_map.GameMap, max_entities: int
+    room: RectangularRoom,
+    dungeon: game_map.GameMap,
+    max_monsters: int,
+    max_items: int,
 ) -> None:
-    num_entities = random.randint(0, max_entities)
+    num_monsters = random.randint(0, max_monsters)
+    num_items = random.randint(0, max_items)
 
-    for i in range(num_entities):
+    # Place monsters.
+    for i in range(num_monsters):
         x = random.randint(room.x0 + 1, room.x1 - 1)
         y = random.randint(room.y0 + 1, room.y1 - 1)
 
@@ -107,3 +113,11 @@ def place_entities(
                 yarl.entity_factories.goblin.spawn(dungeon, x, y)
             else:
                 yarl.entity_factories.orc.spawn(dungeon, x, y)
+
+    # Place items.
+    for i in range(num_items):
+        x = random.randint(room.x0 + 1, room.x1 - 1)
+        y = random.randint(room.y0 + 1, room.y1 - 1)
+
+        if not any(e.x == x and e.y == y for e in dungeon.entities):
+            yarl.entity_factories.healing_potion.spawn(dungeon, x, y)
