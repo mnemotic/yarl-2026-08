@@ -9,7 +9,6 @@ class Inventory(BaseComponent):
         self.capacity = capacity
         self.items: list[yarl.entity.Item] = []
 
-    # TODO: Dropping an item should be an action.
     def drop(self, item: yarl.entity.Item) -> None:
         self.items.remove(item)
         item.place(self.parent.x, self.parent.y, self.game_map)

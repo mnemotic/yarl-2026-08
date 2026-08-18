@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 
 import tcod.event
 from tcod.console import Console
-from tcod.event import Event, KeyDown, KeySym
+from tcod.event import Event, KeyDown, KeySym, MouseButtonDown
 
 import yarl.action
 import yarl.actions
 import yarl.engine
-from yarl.colors import IMPOSSIBLE
+import yarl.entity
+from yarl.colors import IMPOSSIBLE, INVALID
 from yarl.exceptions import ImpossibleActionError
 
 MOVE_KEYS = {
@@ -101,6 +102,10 @@ class MainGameState(BaseState):
         match event:
             case KeyDown(sym=KeySym.V):
                 self.engine.state = JournalViewer(self.engine)
+            case KeyDown(sym=KeySym.I):
+                self.engine.state = InventoryActivateState(self.engine)
+            case KeyDown(sym=KeySym.D):
+                self.engine.state = InventoryDropState(self.engine)
             case _:
                 super().handle_event(event)
 
@@ -197,3 +202,110 @@ class JournalViewer(BaseState):
             self.engine.message_log.messages[: self.cursor + 1],
         )
         log_console.blit(console, 3, 3)
+
+
+class AwaitUserInputState(BaseState):
+    MOD_KEYS = frozenset(
+        [
+            KeySym.LSHIFT,
+            KeySym.RSHIFT,
+            KeySym.LCTRL,
+            KeySym.RCTRL,
+            KeySym.LALT,
+            KeySym.RALT,
+        ]
+    )
+
+    def dispatch(self, event: Event) -> yarl.action.Action | None:
+        match event:
+            # Ignore modifier keys.
+            case KeyDown() as e if e.sym not in self.MOD_KEYS:
+                return self._on_exit()
+            case MouseButtonDown():
+                return self._on_exit()
+
+    def handle_action(self, action: yarl.action.Action | None) -> bool:
+        if super().handle_action(action):
+            self.engine.state = MainGameState(self.engine)
+            return True
+        return False
+
+    def _on_exit(self) -> yarl.action.Action | None:
+        self.engine.state = MainGameState(self.engine)
+
+
+class InventoryState(AwaitUserInputState):
+    TITLE = "<MISSING TITLE>"
+
+    @abstractmethod
+    def on_item_selected(self, item: yarl.entity.Item) -> yarl.action.Action | None: ...
+
+    def handle_event(self, event: Event) -> None:
+        match event:
+            case KeyDown():
+                self.handle_action(self.dispatch(event))
+            case _:
+                super().handle_event(event)
+
+    def dispatch(self, event: Event) -> yarl.action.Action | None:
+        player = self.engine.player
+
+        match event:
+            case KeyDown(sym=sym):
+                index = sym - KeySym.A
+                if 0 <= index <= 26:
+                    try:
+                        selected_item = player.inventory.items[index]
+                    except IndexError:
+                        self.engine.message_log.append("Invalid selection.", INVALID)
+                        return None
+                    return self.on_item_selected(selected_item)
+                return super().dispatch(event)
+            case _:
+                return super().dispatch(event)
+
+    def render(self, console: Console):
+        super().render(console)
+
+        num_items = len(self.engine.player.inventory.items)
+        height = max(3, num_items + 2)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+        y = 0
+
+        width = len(self.TITLE) + 4
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=(255, 255, 255),
+            bg=(0, 0, 0),
+        )
+
+        if num_items > 0:
+            for i, item in enumerate(self.engine.player.inventory.items):
+                item_key = chr(ord("a") + i)
+                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+        else:
+            console.print(x + 1, y + 1, "Empty")
+
+
+class InventoryActivateState(InventoryState):
+    TITLE = "Select Item to Use"
+
+    def on_item_selected(self, item: yarl.entity.Item) -> yarl.action.Action | None:
+        return item.consumable.get_action(self.engine.player)
+
+
+class InventoryDropState(InventoryState):
+    TITLE = "Select Item to Drop"
+
+    def on_item_selected(self, item: yarl.entity.Item) -> yarl.action.Action | None:
+        return yarl.actions.DropItemAction(self.engine.player, item)

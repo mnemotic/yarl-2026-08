@@ -133,3 +133,8 @@ class PickUpItemAction(BaseAction):
                 self.engine.message_log.append(f"You picked up the {item.name}!")
                 return
         raise ImpossibleActionError("There's nothing to pick up here.")
+
+
+class DropItemAction(UseItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.drop(self.item)
