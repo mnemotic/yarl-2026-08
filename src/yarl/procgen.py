@@ -1,5 +1,5 @@
 import random
-from collections.abc import Iterator
+from collections.abc import Iterable
 
 import tcod
 
@@ -40,7 +40,7 @@ class RectangularRoom:
 def make_tunnel(
     start: tuple[int, int],
     end: tuple[int, int],
-) -> Iterator[tuple[int, int]]:
+) -> Iterable[tuple[int, int]]:
     x0, y0 = start
     x1, y1 = end
     if random.random() < 0.5:

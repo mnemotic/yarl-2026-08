@@ -118,6 +118,8 @@ class MainGameState(BaseState):
                 action = yarl.actions.BumpAction(player, *MOVE_KEYS[e.sym])
             case KeyDown() as e if e.sym in WAIT_KEYS:
                 action = yarl.actions.WaitAction(player)
+            case KeyDown(sym=KeySym.G):
+                action = yarl.actions.PickUpItemAction(player)
 
         return action
 

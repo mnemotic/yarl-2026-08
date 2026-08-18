@@ -4,6 +4,7 @@ from typing import Self
 import yarl.consumable
 from yarl.components import ai
 from yarl.components.combatant import Combatant
+from yarl.components.inventory import Inventory
 from yarl.game_map import GameMap
 from yarl.render_order import RenderOrder
 
@@ -11,7 +12,7 @@ from yarl.render_order import RenderOrder
 class Entity:
     """Generic game object representing player chareacters, NPCs, items, etc."""
 
-    parent: GameMap
+    parent: GameMap | Inventory
 
     def __init__(
         self,
@@ -73,6 +74,7 @@ class Actor(Entity):
         name: str = "<Unnamed>",
         ai_cls: type[ai.BaseAI],
         combatant: Combatant,
+        inventory: Inventory,
     ):
         super().__init__(
             x=x,
@@ -86,6 +88,9 @@ class Actor(Entity):
         self.ai: ai.BaseAI | None = ai_cls(self)
         self.combatant = combatant
         self.combatant.parent = self
+
+        self.inventory = inventory
+        self.inventory.parent = self
 
     @property
     def is_alive(self) -> bool:

@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable
 
 import numpy as np
 from tcod.console import Console
@@ -32,10 +32,14 @@ class GameMap:
         return self
 
     @property
-    def actors(self) -> Iterator[yarl.entity.Actor]:
+    def actors(self) -> Iterable[yarl.entity.Actor]:
         yield from (
             e for e in self.entities if isinstance(e, yarl.entity.Actor) and e.is_alive
         )
+
+    @property
+    def items(self) -> Iterable[yarl.entity.Item]:
+        yield from (e for e in self.entities if isinstance(e, yarl.entity.Item))
 
     def in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height

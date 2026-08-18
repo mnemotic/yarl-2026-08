@@ -2,6 +2,7 @@ import yarl.entity
 from yarl.components.ai import HostileEnemy
 from yarl.components.combatant import Combatant
 from yarl.components.consumables import HealingConsumable
+from yarl.components.inventory import Inventory
 
 player = yarl.entity.Actor(
     char=ord("@"),
@@ -9,6 +10,7 @@ player = yarl.entity.Actor(
     name="Player",
     ai_cls=HostileEnemy,
     combatant=Combatant(hp=30, defense=2, power=5),
+    inventory=Inventory(capacity=26),
 )
 
 goblin = yarl.entity.Actor(
@@ -17,6 +19,7 @@ goblin = yarl.entity.Actor(
     name="Goblin",
     ai_cls=HostileEnemy,
     combatant=Combatant(hp=10, defense=0, power=3),
+    inventory=Inventory(capacity=0),
 )
 
 orc = yarl.entity.Actor(
@@ -25,6 +28,7 @@ orc = yarl.entity.Actor(
     name="Orc",
     ai_cls=HostileEnemy,
     combatant=Combatant(hp=16, defense=1, power=4),
+    inventory=Inventory(capacity=0),
 )
 
 healing_potion = yarl.entity.Item(

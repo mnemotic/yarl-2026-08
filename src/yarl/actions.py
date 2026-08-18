@@ -109,3 +109,27 @@ class UseItemAction(BaseAction):
 
     def perform(self) -> None:
         self.item.consumable.activate(self)
+
+
+class PickUpItemAction(BaseAction):
+    def __init__(self, entity: yarl.entity.Actor):
+        super().__init__(entity)
+
+    def perform(self) -> None:
+        actor_x = self.entity.x
+        actor_y = self.entity.y
+        inventory = self.entity.inventory
+
+        for item in self.engine.game_map.items:
+            if actor_x == item.x and actor_y == item.y:
+                if len(inventory.items) >= inventory.capacity:
+                    raise ImpossibleActionError("Your inventory is full.")
+
+                # Remove the item from the map and put it into the inventory.
+                self.engine.game_map.entities.remove(item)
+                item.parent = inventory
+                inventory.items.append(item)
+
+                self.engine.message_log.append(f"You picked up the {item.name}!")
+                return
+        raise ImpossibleActionError("There's nothing to pick up here.")
