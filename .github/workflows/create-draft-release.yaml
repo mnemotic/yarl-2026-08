@@ -24,6 +24,10 @@ jobs:
             platform: windows
 
     steps:
+      - name: Set output name
+        id: set-output-name
+        run: echo 'name=yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ github.ref_name }}' >> $GITHUB_OUTPUT
+
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -32,7 +36,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
-          version: "0.12.5"
+          version: 0.12.5
           enable-cache: true
 
       - name: Set up Python
@@ -45,18 +49,20 @@ jobs:
         run: |
           uv run pyinstaller yarl.spec --noconfirm
           cp LICENSE ./dist/yarl/
-          mv ./dist/yarl "./dist/yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ github.ref_name }}"
+          mv ./dist/yarl './dist/${{ steps.set-output-name.outputs.name }}'
 
       - name: Create archive
         run: |
-          filename="yarl_${{ matrix.platform }}_${{ matrix.arch }}_${{ github.ref_name }}"
           mkdir -p ./uploads
           if [ "${RUNNER_OS}" == 'Windows' ]; then
             # Windows: Create a ZIP archive
-            pwsh -c "& {Compress-Archive -Path dist/* -DestinationPath './uploads/${filename}.zip'}"
+            pwsh -c "& {Compress-Archive -Path dist/* -DestinationPath './uploads/${{ steps.set-output-name.outputs.name }}.zip'}"
           else
             # Linux / macOS: Create a TGZ archive
-            tar -czvf "./uploads/${filename}.tar.gz" -C ./dist .
+            tar \
+              -czvf './uploads/${{ steps.set-output-name.outputs.name }}.tar.gz' \
+              --transform='s,^,${{ steps.set-output-name.outputs.name }}/,' \
+              -C './dist/${{ steps.set-output-name.outputs.name }}' .
           fi
 
       - name: Attach archive to draft release
@@ -64,7 +70,7 @@ jobs:
         with:
           draft: true
           working_directory: ./uploads
-          name: "Release ${{ github.ref_name }}"
+          name: 'Release ${{ github.ref_name }}'
           files: ./*
 
 # spell-checker:words czvf
