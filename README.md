@@ -13,8 +13,6 @@ Windows) or `yarl` (on Linux).
 
 ## Packaging
 
-### PyInstaller
-
 Requires `git`, `git lfs`, and `uv` to be installed.
 
 1. Clone the project, including the assets.
@@ -45,6 +43,25 @@ Requires `git`, `git lfs`, and `uv` to be installed.
 
 This will create a single directory bundle named `yarl` in `./dist`. This bundle
 directory can be distributed to user.
+
+## Release
+
+1. Create a release branch, e.g. `release/v0.10.0` from `develop`.
+1. Update project version using `uv`, either explicitly with `uv version 0.10.0`
+   or by bumping with `uv version --bump <major|minor|patch>`.
+1. Update `__version__` in `./src/yarl/__init__.py` to match the project version.
+1. Commit with message, e.g. `chore: prepare release v0.10.0`.
+1. Merge the release branch into `main` with fast-forward merge, e.g. `git
+   switch main && git merge --ff-only release/v0.10.0`.
+1. Tag the release with an annotated tag, e.g. `git tag -a v0.10.0 -m v0.10.0`
+1. Push to GitHub, including tags, with `git push origin --tags`. GitHub
+   workflow will create a draft release, build bundles and attach them to the
+   draft release.
+1. Add release notes to the draft release.
+1. Publish the release. GitHub workflow will push the attached bundles to *itch.io*.
+1. Merge the release branch into `develop` with fast-forward merge, e.g. `git
+   switch develop && git merge --ff-only release/v0.10.0`. All three branches
+   should now be at the same commit.
 
 ## License
 
